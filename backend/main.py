@@ -71,27 +71,26 @@ def log_request_response(user_inputs: dict, response: str, model_type: str = "st
         print(f"Logging error: {e}")
 
 # 7. Prompt Engineering System Prompt
-prompt_engineer_system = """You are an AI that generates expert system prompts for technical architecture decisions.
+prompt_engineer_system = """You are an expert AI architect that generates detailed, contextual prompts for tech stack recommendations.
 
-Given user inputs about:
-- App Type (e.g., E-commerce, SaaS, Dating App, Real-time Chat)
-- Scale (e.g., MVP, 10K users, 1M users, 100M users)
-- Focus (e.g., Cost, Performance, Scalability, Security, Time-to-market)
-- Additional Constraints (e.g., Team size, Budget, Tech preferences)
+Given user inputs about their project, generate a prompt that will help another AI make HIGHLY CONTEXTUALIZED tech stack recommendations - not generic ones.
 
-Generate a detailed, contextual prompt that will help an AI architect make optimal tech stack recommendations.
+Key principle: Every tech choice MUST be justified relative to the user's SPECIFIC constraints and priorities, not just generic pros/cons.
 
 The generated prompt should:
-1. Be specific to the user's context
-2. Include relevant market trends and best practices
-3. Consider trade-offs and their impact
-4. Guide toward practical, implementable solutions
-5. NOT include mermaid diagram rules - those will be handled separately
+1. Synthesize all user inputs into coherent context (app type, scale, budget, timeline, team, security needs)
+2. Identify the PRIMARY decision drivers (e.g., "Cost is the main driver here" or "Scaling to 1M users is the hard constraint")
+3. Highlight trade-offs that matter to THIS specific project
+4. Guide the recommender to explain choices in context of the project's unique situation
+5. Ensure recommendations consider team size, time-to-market, and budget constraints
+6. Request that pros/cons be specific to the project context, not generic
 
-Output ONLY the custom prompt text, no explanations or formatting."""
+Output ONLY the detailed, contextual prompt. No explanations. Make it substantive (2-4 paragraphs explaining the business context and key decision factors)."""
 
 # 8. System Prompt for Tech Stack Recommendation (WITH MERMAID RULES - DO NOT MODIFY)
-system_prompt = """Structure your answer EXACTLY as follows with MINIMAL text and MAXIMUM diagrams:
+system_prompt = """CRITICAL: You MUST provide BOTH the architecture diagram AND the tech stack recommendations below. 
+
+Structure your answer EXACTLY as follows:
 
 ## Architecture Diagram
 Provide a Mermaid.js diagram showing the complete system architecture for the PRIMARY recommended stack.
@@ -106,43 +105,86 @@ IMPORTANT: Recommend ONE cohesive tech stack that works well together. Choose te
 
 ### Frontend
 **Tech_Name** - emoji_or_icon
-Pros: • Benefit1 • Benefit2 • Benefit3
-Cons: • Drawback1 • Drawback2
-Why: One sentence explaining this choice.
+Pros:
+• [Specific advantage tied to their app type/scale/budget]
+• [Specific advantage tied to their timeline/team size/focus]
+• [Specific advantage tied to their security/performance needs]
+Cons:
+• [Specific limitation relative to their constraints]
+• [Specific limitation relative to their team size/experience]
+• [Specific limitation relative to their budget/timeline]
+Why: [Explain why this is the BEST choice FOR THEIR EXACT SITUATION. Reference their specific inputs: app type, scale, budget, team size, timeline, security level, or stated focus. Be concrete - e.g., "For a solo developer with a tight 2-month deadline, React's component reusability saves critical time" rather than generic statements.]
 
 ### Backend
 **Tech_Name** - emoji_or_icon
-Pros: • Benefit1 • Benefit2 • Benefit3
-Cons: • Drawback1 • Drawback2
-Why: One sentence explaining this choice.
+Pros:
+• [Specific advantage tied to their app type/scale/budget]
+• [Specific advantage tied to their timeline/team size/focus]
+• [Specific advantage tied to their security/performance needs]
+Cons:
+• [Specific limitation relative to their constraints]
+• [Specific limitation relative to their team size/experience]
+• [Specific limitation relative to their budget/timeline]
+Why: [Explain why this is the BEST choice FOR THEIR EXACT SITUATION. Reference their specific inputs: app type, scale, budget, team size, timeline, security level, or stated focus. Be concrete about how this serves their particular needs.]
 
 ### Database
 **Tech_Name** - emoji_or_icon
-Pros: • Benefit1 • Benefit2 • Benefit3
-Cons: • Drawback1 • Drawback2
-Why: One sentence explaining this choice.
+Pros:
+• [Specific advantage tied to their data/scale needs]
+• [Specific advantage tied to their cost/performance priorities]
+• [Specific advantage tied to their team expertise/maturity needs]
+Cons:
+• [Specific limitation relative to their use case]
+• [Specific limitation relative to their priorities]
+• [Specific limitation relative to their team/constraints]
+Why: [Explain why this is the BEST choice FOR THEIR EXACT SITUATION. Reference their specific inputs: scale, data type, budget, team size, or stated priorities. Be concrete about how this database solves their particular problem.]
 
 ### DevOps/Infrastructure
 **Tech_Name** - emoji_or_icon
-Pros: • Benefit1 • Benefit2 • Benefit3
-Cons: • Drawback1 • Drawback2
-Why: One sentence explaining this choice.
+Pros:
+• [Specific advantage for their deployment/scaling needs]
+• [Specific advantage relative to their budget/operational model]
+• [Specific advantage relative to their team size/expertise]
+Cons:
+• [Specific limitation relative to their timeline/complexity]
+• [Specific limitation relative to their team experience]
+• [Specific limitation relative to their budget/resources]
+Why: [Explain why this is the BEST choice FOR THEIR EXACT SITUATION. Reference their specific inputs: scale, timeline, team size, budget, or operational constraints. Be concrete.]
 
 ### Additional Services
 **Tech_Name** - emoji_or_icon
-Pros: • Benefit1 • Benefit2 • Benefit3
-Cons: • Drawback1 • Drawback2
-Why: One sentence explaining this choice.
+Pros:
+• [Specific advantage for their primary stack integration]
+• [Specific advantage for their performance/monitoring/caching needs]
+• [Specific advantage relative to their budget/complexity priorities]
+Cons:
+• [Specific operational cost/complexity trade-off]
+• [Specific maintenance burden relative to their team]
+• [Specific limitation relative to their constraints]
+Why: [Explain why this is the BEST choice FOR THEIR EXACT SITUATION. Reference their specific inputs: app needs, team size, budget, scale. Be concrete about the value it adds to THEIR specific project.]
 
 ## ALTERNATIVE Technology Stacks
 
-Provide up to 3 alternative tech stack options with the SAME format as above. Each alternative should:
+Provide up to 3 alternative tech stack options with the SAME format as PRIMARY. Each alternative should:
 - Solve the same problem differently
 - Have different trade-offs (e.g., cost vs performance, simplicity vs scalability)
 - Still be cohesive and production-ready
 
+FOR EACH ALTERNATIVE, START WITH AN EXPLANATION:
+**When to use this stack:** Explain the specific scenario where this stack is BETTER than PRIMARY for the user's project type and constraints. Reference their business priorities (e.g., "If cost is your absolute priority...", "If you need extreme scalability...", "If you have a more experienced team in X language...").
+
+**Primary trade-off vs recommended stack:** Explain the key difference between this and the PRIMARY recommendation. What are you trading OFF to GAIN with this alternative? (e.g., "Trading development speed for raw performance", "Trading operational simplicity for cost savings")
+
+**Why this option is worth considering:** Briefly explain why this exists in the list - what makes it a viable alternative given their project context?
+
+Then provide the full tech stack with the same format as PRIMARY (### Frontend, ### Backend, etc. with pros/cons/why for each technology).
+
 Use headers like:
 ## ALTERNATIVE STACK #1
+**When to use this stack:** [explanation]
+**Primary trade-off vs recommended stack:** [trade-off explanation]
+**Why this option is worth considering:** [context-specific reasoning]
+
 ### Frontend
 ...
 ### Backend
@@ -150,9 +192,11 @@ Use headers like:
 etc.
 
 ## ALTERNATIVE STACK #2
+[same explanation format]
 ...
 
 ## ALTERNATIVE STACK #3
+[same explanation format]
 ...
 
 NOTE: Do NOT suggest multiple options in the same category within a single stack. Pick the BEST option for the given requirements.
@@ -221,18 +265,8 @@ DO NOT:
 - Create incomplete anything - EVERY line must be complete and valid
 - Use special characters except underscores
 
-Output ONLY the mermaid code block:
-```mermaid
-graph TD
-    [YOUR DIAGRAM HERE]
-```
+IMPORTANT: After providing the mermaid diagram, ALWAYS include the complete PRIMARY Technology Stack and all sections (Frontend, Backend, Database, DevOps, Additional Services) with pros, cons, and why explanations for each technology.
 """
-
-# 6. LangChain Pipeline
-prompt_template = ChatPromptTemplate.from_messages([
-    ("system", system_prompt),
-    ("user", "App Type: {appType}, Scale: {scale}, Focus: {focus}")
-])
 
 # Function to extract and validate mermaid code from response
 def process_response_stream(text: str) -> str:
@@ -257,18 +291,9 @@ def process_response_stream(text: str) -> str:
     
     return cleaned_text
 
-# Function to create master prompt by mixing custom context with system rules
-def create_master_prompt(custom_prompt: str) -> str:
-    """
-    Mix the custom prompt from prompt generation with system prompt 
-    to create a master prompt that includes both user context and mermaid syntax rules
-    """
-    return f"""{custom_prompt}
-
-{system_prompt}"""
-
 # LangChain Pipelines
 stack_prompt_template = ChatPromptTemplate.from_messages([
+    ("system", system_prompt),
     ("user", "{custom_prompt}")
 ])
 
@@ -282,7 +307,26 @@ prompt_engineer_template = ChatPromptTemplate.from_messages([
 
 prompt_engineer_chain = prompt_engineer_template | prompt_engineer_model | StrOutputParser()
 
-# 7. Request Models
+# 7. Request and Response Models
+class TechItem(BaseModel):
+    name: str
+    pros: list[str] = []
+    cons: list[str] = []
+    why: str = ""
+
+class TechStack(BaseModel):
+    frontend: list[TechItem] = []
+    backend: list[TechItem] = []
+    database: list[TechItem] = []
+    devops: list[TechItem] = []
+    additional: list[TechItem] = []
+
+class RecommendationResponse(BaseModel):
+    architecture_diagram: str
+    primary: TechStack
+    alternatives: list[TechStack] = []
+    alternative_explanations: list[dict] = []  # {stack_num, when_to_use, trade_off, why_consider}
+
 class StackRequest(BaseModel):
     appType: str
     scale: str
@@ -428,6 +472,174 @@ def validate_mermaid_syntax(code: str) -> tuple[bool, str]:
     return True, code
 
 
+# Parse response into structured format
+def parse_tech_stack_response(response: str) -> RecommendationResponse:
+    """
+    Parse the LLM response into a structured RecommendationResponse
+    """
+    print(f"\n=== PARSE START: Response length {len(response)} ===")
+    print(f"First 500 chars:\n{response[:500]}\n")
+    
+    # Extract architecture diagram
+    mermaid_match = re.search(r'```mermaid\n(.*?)\n```', response, re.DOTALL)
+    diagram = mermaid_match.group(1) if mermaid_match else ""
+    
+    # Extract PRIMARY stack
+    primary_match = re.search(r'## PRIMARY Technology Stack\n(.*?)(?=## ALTERNATIVE|$)', response, re.DOTALL)
+    primary_text = primary_match.group(1) if primary_match else ""
+    print(f"\n=== PRIMARY section length: {len(primary_text)} ===")
+    print(f"PRIMARY first 300 chars:\n{primary_text[:300]}\n")
+    primary_stack = parse_stack_section(primary_text)
+    
+    # Extract alternatives
+    alternatives = []
+    alternative_explanations = []
+    alt_pattern = r'## ALTERNATIVE STACK #(\d+)\n(.*?)(?=## ALTERNATIVE STACK #\d+|$)'
+    for match in re.finditer(alt_pattern, response, re.DOTALL):
+        stack_num = int(match.group(1))
+        alt_text = match.group(2)
+        
+        # Extract explanation lines
+        when_match = re.search(r'\*\*When to use this stack:\*\*\s*(.+?)(?:\n\n|\*\*)', alt_text, re.DOTALL)
+        trade_match = re.search(r'\*\*Primary trade-off vs recommended stack:\*\*\s*(.+?)(?:\n\n|\*\*)', alt_text, re.DOTALL)
+        why_match = re.search(r'\*\*Why this option is worth considering:\*\*\s*(.+?)(?:\n\n###)', alt_text, re.DOTALL)
+        
+        alternative_explanations.append({
+            "stack_num": stack_num,
+            "when_to_use": when_match.group(1).strip() if when_match else "",
+            "trade_off": trade_match.group(1).strip() if trade_match else "",
+            "why_consider": why_match.group(1).strip() if why_match else ""
+        })
+        
+        alternatives.append(parse_stack_section(alt_text))
+    
+    return RecommendationResponse(
+        architecture_diagram=diagram,
+        primary=primary_stack,
+        alternatives=alternatives,
+        alternative_explanations=alternative_explanations
+    )
+
+def parse_stack_section(text: str) -> TechStack:
+    """
+    Parse a single tech stack section (PRIMARY or ALTERNATIVE)
+    """
+    stack = TechStack()
+    lines = text.split('\n')
+    current_category = None
+    current_tech = None
+    parsing_mode = None  # 'pros', 'cons', or None
+    
+    for i, line in enumerate(lines):
+        line_stripped = line.strip()
+        if not line_stripped:
+            parsing_mode = None
+            continue
+        
+        # Skip explanation lines
+        if line_stripped.startswith('**') and any(kw in line_stripped for kw in ['When to use', 'Primary trade-off', 'Why this option']):
+            parsing_mode = None
+            continue
+        
+        # Detect category
+        if line_stripped.startswith('### '):
+            if current_tech and current_category:
+                getattr(stack, current_category).append(current_tech)
+                current_tech = None
+            parsing_mode = None
+            
+            if 'Frontend' in line_stripped:
+                current_category = 'frontend'
+            elif 'Backend' in line_stripped:
+                current_category = 'backend'
+            elif 'Database' in line_stripped:
+                current_category = 'database'
+            elif 'DevOps' in line_stripped or 'Infrastructure' in line_stripped:
+                current_category = 'devops'
+            elif 'Additional' in line_stripped:
+                current_category = 'additional'
+            continue
+        
+        # Extract tech name
+        if line_stripped.startswith('**') and ' - ' in line_stripped and current_category:
+            if current_tech and current_category:
+                getattr(stack, current_category).append(current_tech)
+            
+            # Parse: **Tech_Name:** TechName - emoji or **TechName** - emoji
+            match = re.search(r'\*\*Tech_Name:\*\*\s+(.+?)\s+-\s+', line_stripped)
+            if not match:
+                match = re.search(r'\*\*(.+?)\*\*\s*-\s*', line_stripped)
+            
+            if match:
+                current_tech = TechItem(name=match.group(1).strip())
+                parsing_mode = None
+            continue
+        
+        # Detect pros section start
+        if line_stripped.lower() == 'pros:' and current_tech:
+            parsing_mode = 'pros'
+            continue
+        
+        # Detect cons section start
+        if line_stripped.lower() == 'cons:' and current_tech:
+            parsing_mode = 'cons'
+            continue
+        
+        # Detect why section start
+        if line_stripped.lower().startswith('why:') and current_tech:
+            # Could be on same line or next line
+            if line_stripped.lower() == 'why:':
+                parsing_mode = 'why'
+            else:
+                current_tech.why = re.sub(r'^why:\s*', '', line_stripped, flags=re.IGNORECASE).strip()
+                parsing_mode = None
+            continue
+        
+        # Handle bullet points for pros/cons
+        if line_stripped.startswith('•') and current_tech:
+            bullet_text = line_stripped[1:].strip()
+            # Clean up the text - remove bold markers and trailing commas
+            bullet_text = re.sub(r'\*\*([^*]+)\*\*:\s*', '', bullet_text)  # Remove **title:** prefix
+            bullet_text = re.sub(r',\s*$', '', bullet_text)  # Remove trailing comma
+            bullet_text = bullet_text.strip()
+            
+            if parsing_mode == 'pros':
+                current_tech.pros.append(bullet_text)
+            elif parsing_mode == 'cons':
+                current_tech.cons.append(bullet_text)
+            continue
+        
+        # Handle multi-line why
+        if parsing_mode == 'why' and current_tech and line_stripped:
+            if not line_stripped.startswith('###'):
+                current_tech.why += ' ' + line_stripped
+            else:
+                parsing_mode = None
+                # Process this line as a category
+                if 'Frontend' in line_stripped:
+                    current_category = 'frontend'
+                elif 'Backend' in line_stripped:
+                    current_category = 'backend'
+                elif 'Database' in line_stripped:
+                    current_category = 'database'
+                elif 'DevOps' in line_stripped or 'Infrastructure' in line_stripped:
+                    current_category = 'devops'
+                elif 'Additional' in line_stripped:
+                    current_category = 'additional'
+            continue
+        
+        # If we hit a new category or tech while in pros/cons, stop collecting
+        if (line_stripped.startswith('###') or line_stripped.startswith('**')) and parsing_mode:
+            parsing_mode = None
+    
+    # Don't forget last tech
+    if current_tech and current_category:
+        getattr(stack, current_category).append(current_tech)
+    
+    return stack
+
+
+
 # 9. API Endpoints
 
 # Endpoint 1: Generate Custom Prompt Based on User Inputs
@@ -460,46 +672,59 @@ async def generate_prompt(req: PromptGenerationRequest):
 @app.post("/api/recommend")
 async def recommend_stack(req: StackRequest):
     """
-    Generate tech stack recommendation using master prompt (custom context + system rules)
+    Generate tech stack recommendation with context from user inputs
+    Returns structured JSON response (non-streaming)
     """
-    async def generate():
-        # First, generate a custom prompt based on user inputs
-        try:
-            custom_prompt = await prompt_engineer_chain.ainvoke({
-                "appType": req.appType,
-                "scale": req.scale,
-                "focus": req.focus,
-                "teamSize": req.teamSize,
-                "budget": req.budget,
-                "timeToMarket": req.timeToMarket,
-                "securityLevel": req.securityLevel,
-                "customConstraints": req.customConstraints
-            })
-        except Exception as e:
-            custom_prompt = f"App Type: {req.appType}, Scale: {req.scale}, Focus: {req.focus}, Team: {req.teamSize}, Budget: {req.budget}, TTM: {req.timeToMarket}, Security: {req.securityLevel}, Custom: {req.customConstraints}"
-            yield f"Note: Using basic context due to prompt generation error.\n\n"
+    try:
+        print("\n=== BACKEND LOG: Generating custom prompt ===")
+        custom_prompt = await prompt_engineer_chain.ainvoke({
+            "appType": req.appType,
+            "scale": req.scale,
+            "focus": req.focus,
+            "teamSize": req.teamSize,
+            "budget": req.budget,
+            "timeToMarket": req.timeToMarket,
+            "securityLevel": req.securityLevel,
+            "customConstraints": req.customConstraints
+        })
+        print(f"Custom prompt generated: {custom_prompt[:200]}...")
         
-        # Create master prompt by mixing custom context with system rules
-        master_prompt = create_master_prompt(custom_prompt)
+        print("=== BACKEND LOG: Generating tech stack recommendation ===")
+        # Get full response (not streaming)
+        full_response = await stack_chain.ainvoke({"custom_prompt": custom_prompt})
         
-        full_response = ""
-        # Stream the tech stack recommendation using master prompt
-        async for chunk in stack_chain.astream({"custom_prompt": master_prompt}):
-            full_response += chunk
-            yield chunk
+        print(f"\n=== BACKEND LOG: Full response length: {len(full_response)} ===")
+        print(f"=== BACKEND LOG: PRIMARY check: {'## PRIMARY' in full_response} ===")
+        print(f"=== BACKEND LOG: MERMAID check: {'```mermaid' in full_response} ===")
         
-        # Validate mermaid blocks at the end
-        cleaned_response = process_response_stream(full_response)
-        if cleaned_response != full_response:
-            yield "\n\n" + cleaned_response.replace(full_response, "")
+        # Parse response into structured format
+        parsed_response = parse_tech_stack_response(full_response)
         
-        # Log the response with custom prompt, master prompt, and final response
+        # Log the response
         log_request_response(req.dict(), full_response, "stack_recommendation",
-                            custom_prompt=custom_prompt, master_prompt=master_prompt)
+                            custom_prompt=custom_prompt, master_prompt=system_prompt)
+        
+        return parsed_response
+        
+    except Exception as e:
+        print(f"Error in recommend_stack: {e}")
+        return {"error": str(e)}
 
-    return StreamingResponse(generate(), media_type="text/plain")
+# Endpoint 3: Debug - Show what system prompt looks like
+@app.get("/api/debug/system-prompt")
+def debug_system_prompt():
+    """
+    Show the system prompt being used (for debugging)
+    """
+    return {
+        "system_prompt_length": len(system_prompt),
+        "has_primary": "## PRIMARY" in system_prompt,
+        "has_frontend": "### Frontend" in system_prompt,
+        "first_500_chars": system_prompt[:500],
+        "sample_section": system_prompt[100:400]
+    }
 
-# Endpoint 3: Health Check
+# Endpoint 4: Health Check
 @app.get("/")
 def home():
     return {

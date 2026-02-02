@@ -4,66 +4,200 @@
 @tailwind components;
 @tailwind utilities;
 
-/* System Diagnostics Dashboard Theme - Light & Trustworthy */
+/* Typography System */
 @layer base {
   :root {
-    /* Primary - Trust & Professional Blue */
-    --color-primary: #0f67cc;
-    --color-primary-light: #e8f1ff;
-    --color-primary-dark: #0a4a9f;
-    
-    /* Secondary - Professional Gray */
-    --color-secondary: #4b5563;
-    --color-secondary-light: #f0f2f5;
-    --color-secondary-border: #d0d5dd;
-    
-    /* Success - Health/Good status */
-    --color-success: #16a34a;
-    --color-success-light: #f0fdf4;
-    
-    /* Warning - Caution */
-    --color-warning: #d97706;
-    --color-warning-light: #fffbeb;
-    
-    /* Error - Alert */
-    --color-error: #dc2626;
-    --color-error-light: #fef2f2;
-    
-    /* Neutral backgrounds */
-    --color-bg-primary: #ffffff;
-    --color-bg-secondary: #f8f9fa;
-    --color-bg-tertiary: #f0f2f5;
-    
-    /* Text */
-    --color-text-primary: #1a202c;
-    --color-text-secondary: #4b5563;
-    --color-text-tertiary: #6b7280;
+    --font-family-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+    --color-amber: #b45309;
+    --color-amber-light: #fef3c7;
+  }
+
+  html {
+    font-family: var(--font-family-display);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     @apply bg-white text-gray-900;
+    letter-spacing: -0.3px;
   }
-  
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.5px;
+    font-weight: 600;
   }
 }
 
+/* Color Palette - Crafted, not generic */
 @layer components {
-  .diagnostic-card {
-    @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow;
+  /* Modern input styling */
+  .form-input {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 transition-all;
+    @apply focus:outline-none focus:border-amber-600 focus:shadow-sm focus:ring-0 focus:bg-amber-50;
+    @apply hover:border-gray-400;
+    font-size: 0.95rem;
   }
-  
-  .diagnostic-input {
-    @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-gray-50 hover:bg-white;
+
+  .form-select {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 appearance-none transition-all;
+    @apply focus:outline-none focus:border-amber-600 focus:shadow-sm focus:ring-0 focus:bg-amber-50;
+    @apply hover:border-gray-400;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23333' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
   }
-  
-  .diagnostic-button-primary {
-    @apply px-6 py-3 font-medium rounded-lg transition-all duration-200 inline-flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
+
+  .form-label {
+    @apply block text-sm font-semibold text-gray-900 mb-2;
+    letter-spacing: -0.2px;
   }
-  
-  .diagnostic-badge {
-    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium;
+
+  .form-hint {
+    @apply text-xs text-gray-600 mt-1.5;
   }
+
+  .form-group {
+    @apply space-y-2;
+  }
+
+  /* Card design - subtle elevation */
+  .card {
+    @apply bg-white border border-gray-200 rounded-lg transition-all;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .card:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    @apply border-gray-300;
+  }
+
+  /* Button system */
+  .btn {
+    @apply px-4 py-2.5 rounded-lg font-medium transition-all duration-200 inline-flex items-center justify-center gap-2 border;
+    font-size: 0.95rem;
+    letter-spacing: -0.2px;
+  }
+
+  .btn-primary {
+    @apply bg-gray-900 text-white border-gray-900 hover:bg-gray-800 hover:border-gray-800;
+    @apply active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-gray-900 border-gray-300 hover:bg-gray-50 hover:border-gray-400;
+  }
+
+  .btn-amber {
+    @apply bg-amber-600 text-white border-amber-600 hover:bg-amber-700 hover:border-amber-700;
+    @apply active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Section divider */
+  .section-header {
+    @apply flex items-center gap-3 mb-6 pb-4 border-b border-gray-200;
+  }
+
+  .section-title {
+    @apply text-xs font-semibold text-gray-600 uppercase tracking-wide;
+    letter-spacing: 0.4px;
+  }
+
+  /* Accent underline */
+  .accent-line {
+    @apply h-0.5 w-12 bg-amber-600;
+  }
+
+  /* Collapsible trigger */
+  .collapsible-trigger {
+    @apply w-full flex items-center justify-between px-5 py-4 hover:bg-amber-50 transition-colors rounded-lg border border-gray-200 hover:border-amber-300;
+  }
+
+  .collapsible-trigger:hover {
+    @apply border-amber-300;
+  }
+}
+
+/* React Select Custom Theming - Exact Match to form-select */
+/* Using Tailwind @apply to match native styles directly */
+
+.react-select-container {
+  @apply w-full;
+  font-size: 0.95rem; /* Matches form-input */
+}
+
+/* The outer control box */
+.react-select__control {
+  @apply w-full border border-gray-300 rounded-lg bg-white text-gray-900 transition-all cursor-pointer shadow-none min-h-0 flex items-center justify-between;
+  @apply hover:border-gray-400;
+  padding: 0 !important;
+}
+
+/* Focus state */
+.react-select__control--is-focused {
+  @apply outline-none border-amber-600 shadow-sm ring-0 bg-amber-50;
+}
+
+/* Value Container */
+.react-select__value-container {
+  @apply px-4 py-3 flex flex-wrap items-center flex-1 gap-1.5; /* Increased to py-3 (0.75rem) to match form-select exactly */
+}
+
+/* Placeholder */
+.react-select__placeholder {
+  @apply text-gray-900 m-0 font-normal; /* Changed to text-gray-900 to match native select's initial option color */
+}
+
+/* Input (typing area) */
+.react-select__input-container {
+  @apply m-0 p-0 text-gray-900 font-normal;
+}
+.react-select__input {
+  @apply text-inherit font-normal;
+}
+
+/* Multi Value Tags (Chips) */
+.react-select__multi-value {
+  @apply bg-gray-100 border border-gray-200 rounded-md m-0 flex items-center;
+}
+
+.react-select__multi-value__label {
+  @apply text-gray-900 px-2 py-0.5 text-sm font-medium;
+}
+
+.react-select__multi-value__remove {
+  @apply text-gray-500 px-1 rounded-r-md cursor-pointer hover:bg-gray-200 hover:text-gray-900 flex items-center justify-center;
+}
+
+/* Dropdown Menu */
+.react-select__menu {
+  @apply border border-gray-300 rounded-lg bg-white shadow-md mt-2 p-0 overflow-hidden z-50;
+}
+
+.react-select__menu-list {
+  @apply py-1;
+}
+
+/* Options */
+.react-select__option {
+  @apply px-4 py-2.5 text-sm text-gray-900 cursor-pointer font-normal;
+}
+
+.react-select__option--is-focused {
+  @apply bg-amber-50 text-gray-900;
+}
+
+.react-select__option--is-selected {
+  @apply bg-amber-600 text-white;
+}
+
+/* Indicators (Arrow) */
+.react-select__indicators {
+  @apply flex items-center pr-4;
+}
+
+.react-select__dropdown-indicator {
+  @apply p-0 text-[#333333] hover:text-[#333333] flex items-center;
 }

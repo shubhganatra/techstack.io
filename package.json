@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@types/react-select": "^5.0.0",
+    "react-select": "^5.10.2",
+    "tailwindcss": "^4.1.18"
+  }
+}

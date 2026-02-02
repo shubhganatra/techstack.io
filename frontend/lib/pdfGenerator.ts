@@ -1,6 +1,6 @@
 export interface TechItem {
   name: string;
-  icon: string;
+  icon?: string;
   pros: string[];
   cons: string[];
   why: string;
@@ -17,15 +17,30 @@ export interface TechStack {
 export interface TechStackData {
   primary: TechStack;
   alternatives: TechStack[];
+  alternative_explanations: Array<{
+    stack_num: number;
+    when_to_use: string;
+    trade_off: string;
+    why_consider: string;
+  }>;
+  mermaid_diagram: string;
   inputs: {
     appType: string;
     scale: string;
     focus: string;
+    teamSize: string;
+    budget: string;
+    timeToMarket: string;
+    securityLevel: string;
+    customConstraints: string;
   };
-  architecture: string;
 }
 
 export function parseTechStackResponse(response: string): Partial<TechStackData> {
+  console.log('=== PARSER LOG: Starting parse ===');
+  console.log('Response length:', response.length);
+  console.log('Response starts:', response.substring(0, 500));
+  
   const result: Partial<TechStackData> = {
     primary: {
       frontend: [],
@@ -39,6 +54,7 @@ export function parseTechStackResponse(response: string): Partial<TechStackData>
 
   // Helper function to parse a stack section
   const parseStack = (stackText: string): TechStack => {
+    console.log('=== PARSER LOG: Parsing stack section, length:', stackText.length);
     const stack: TechStack = {
       frontend: [],
       backend: [],
@@ -48,17 +64,27 @@ export function parseTechStackResponse(response: string): Partial<TechStackData>
     };
 
     const lines = stackText.split('\n');
+    console.log('=== PARSER LOG: Total lines in stack:', lines.length);
+    
+    // Log first 20 lines to see the format
+    console.log('=== PARSER LOG: First 20 lines:');
+    for (let j = 0; j < Math.min(20, lines.length); j++) {
+      const rawLine = lines[j];
+      console.log(`Line ${j}: "${rawLine}"`);
+    }
 
     let currentCategory: keyof TechStack | null = null;
     let currentTech: Partial<TechItem> | null = null;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
+      const rawLine = lines[i];
       
       if (!line) continue; // Skip empty lines
 
       // Check for category header FIRST - must be exact
       if (line.startsWith('###')) {
+        console.log(`=== PARSER LOG: Line ${i} is ### line:`, line);
         // Save previous tech before switching category
         if (currentTech && currentCategory) {
           stack[currentCategory].push(currentTech as TechItem);
@@ -67,26 +93,43 @@ export function parseTechStackResponse(response: string): Partial<TechStackData>
 
         if (line.includes('Frontend')) {
           currentCategory = 'frontend';
+          console.log('Found Frontend category');
         } else if (line.includes('Backend')) {
           currentCategory = 'backend';
+          console.log('Found Backend category');
         } else if (line.includes('Database')) {
           currentCategory = 'database';
+          console.log('Found Database category');
         } else if (line.includes('DevOps') || line.includes('Infrastructure')) {
           currentCategory = 'devops';
+          console.log('Found DevOps category');
         } else if (line.includes('Additional')) {
           currentCategory = 'additional';
+          console.log('Found Additional category');
         }
         continue;
       }
 
-      // Check for tech name line: **Name** - emoji
-      if (line.startsWith('**') && line.includes('**') && line.includes('-')) {
+      // Skip explanation lines from alternatives (When to use this stack, Primary trade-off, etc)
+      if (line.startsWith('**') && (line.includes('When to use this stack') || line.includes('Primary trade-off') || line.includes('Why this option is worth considering'))) {
+        continue;
+      }
+
+      // Check for tech name line: **Tech_Name:** or **Name** - emoji
+      if (line.startsWith('**') && line.includes('-')) {
+        console.log(`=== PARSER LOG: Line ${i} is ** line:`, line);
+        console.log(`Raw line: "${rawLine}"`);
         // Save previous tech
         if (currentTech && currentCategory) {
           stack[currentCategory].push(currentTech as TechItem);
         }
 
-        const nameMatch = line.match(/^\*\*([^*]+)\*\*\s*-\s*(.*)/);
+        // Match both formats: **Tech_Name:** TechName - emoji OR **TechName** - emoji
+        let nameMatch = line.match(/\*\*Tech_Name:\*\*\s+(.+?)\s+-\s+(.*)/);
+        if (!nameMatch) {
+          nameMatch = line.match(/^\*\*([^*]+)\*\*\s*-\s*(.*)/);
+        }
+        
         if (nameMatch) {
           currentTech = {
             name: nameMatch[1].trim(),
@@ -95,6 +138,9 @@ export function parseTechStackResponse(response: string): Partial<TechStackData>
             cons: [],
             why: '',
           };
+          console.log('Found tech:', nameMatch[1].trim());
+        } else {
+          console.log('NO MATCH for pattern:', line);
         }
         continue;
       }
@@ -103,8 +149,8 @@ export function parseTechStackResponse(response: string): Partial<TechStackData>
       if (line.toLowerCase().startsWith('pros:') && currentTech) {
         const prosText = line.substring(5).trim();
         currentTech.pros = prosText
-          .split(/[•\-\*]/)
-          .map(p => p.trim())
+          .split('•')
+          .map(p => p.trim().replace(/,\s*$/, '').replace(/\s+/g, ' '))
           .filter(p => p.length > 0);
         continue;
       }
@@ -113,8 +159,8 @@ export function parseTechStackResponse(response: string): Partial<TechStackData>
       if (line.toLowerCase().startsWith('cons:') && currentTech) {
         const consText = line.substring(5).trim();
         currentTech.cons = consText
-          .split(/[•\-\*]/)
-          .map(c => c.trim())
+          .split('•')
+          .map(c => c.trim().replace(/,\s*$/, '').replace(/\s+/g, ' '))
           .filter(c => c.length > 0);
         continue;
       }
@@ -136,6 +182,8 @@ export function parseTechStackResponse(response: string): Partial<TechStackData>
 
   // Parse PRIMARY stack
   const primaryMatch = response.search(/##\s*PRIMARY\s*Technology\s*Stack/i);
+  console.log('=== PARSER LOG: PRIMARY match index:', primaryMatch);
+  console.log('=== PARSER LOG: Full response includes PRIMARY?', response.includes('## PRIMARY'));
   
   if (primaryMatch !== -1) {
     // Find the next ## that marks either ALTERNATIVE or end
@@ -143,7 +191,24 @@ export function parseTechStackResponse(response: string): Partial<TechStackData>
     if (primaryEnd === -1) primaryEnd = response.length;
     
     const primaryText = response.substring(primaryMatch, primaryEnd);
+    console.log('=== PARSER LOG: Primary section extracted, length:', primaryText.length);
+    console.log('=== PARSER LOG: Primary section starts:', primaryText.substring(0, 300));
+    
+    // Log what categories are in the primary section
+    console.log('=== PARSER LOG: Has ### Frontend?', primaryText.includes('### Frontend'));
+    console.log('=== PARSER LOG: Has ### Backend?', primaryText.includes('### Backend'));
+    console.log('=== PARSER LOG: Has ### Database?', primaryText.includes('### Database'));
+    console.log('=== PARSER LOG: Has **?', primaryText.includes('**'));
+    
+    // Show first few lines with ### or **
+    const lines = primaryText.split('\n');
+    const relevantLines = lines.filter(l => l.includes('###') || l.includes('**'));
+    console.log('=== PARSER LOG: First relevant lines:', relevantLines.slice(0, 5));
+    
     result.primary = parseStack(primaryText);
+    console.log('=== PARSER LOG: Primary stack parsed - Frontend:', result.primary.frontend.length, 'Backend:', result.primary.backend.length);
+  } else {
+    console.log('=== PARSER LOG: PRIMARY section NOT FOUND! Full response:', response);
   }
 
   // Parse ALTERNATIVE stacks (up to 3)
