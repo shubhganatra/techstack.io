@@ -1,4 +1,7 @@
-#!/bin/bash
+docker compose down
+docker compose up -d
+sleep 10
+docker compose ps#!/bin/bash
 
 # Direct deployment without Docker
 # Works on t3.micro + faster + simpler
