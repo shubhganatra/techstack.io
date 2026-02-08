@@ -33,11 +33,11 @@ docker system prune -af --volumes
 
 # 4. Clean local build artifacts
 echo -e "${YELLOW}4. Cleaning local build artifacts...${NC}"
-rm -rf frontend/.next
-rm -rf frontend/node_modules/.cache
-rm -rf backend/__pycache__
-rm -rf backend/.pytest_cache
-rm -rf backend/logs/*
+rm -rf frontend/.next || true
+rm -rf frontend/node_modules/.cache || true
+rm -rf backend/__pycache__ || true
+rm -rf backend/.pytest_cache || true
+sudo rm -rf backend/logs/* || rm -rf backend/logs/* || true
 
 # 5. Check disk space
 echo -e "${YELLOW}5. Checking disk space...${NC}"
